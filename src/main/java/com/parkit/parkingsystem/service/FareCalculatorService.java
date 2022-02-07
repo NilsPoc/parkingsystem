@@ -30,8 +30,8 @@ public class FareCalculatorService {
         double durationMin = (double) TimeUnit.MILLISECONDS.toMinutes(outHourInMillis - inHourInMillis);
         double durationHour = Precision.round((durationMin/60), 2);
         
-        
-        switch (ticket.getParkingSpot().getParkingType()){
+        if (durationMin >30) {
+        	switch (ticket.getParkingSpot().getParkingType()){
             case CAR: {
                // ticket.setPrice(duration * Fare.CAR_RATE_PER_HOUR);
             	ticket.setPrice(durationHour * Fare.CAR_RATE_PER_HOUR);
@@ -43,6 +43,8 @@ public class FareCalculatorService {
                 break;
             }
             default: throw new IllegalArgumentException("Unkown Parking Type");
+         }
         }
+        else ticket.setPrice(0); 
     }
 }
