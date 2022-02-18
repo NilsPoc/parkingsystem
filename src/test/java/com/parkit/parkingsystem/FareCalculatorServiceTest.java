@@ -2,30 +2,48 @@ package com.parkit.parkingsystem;
 
 import com.parkit.parkingsystem.constants.Fare;
 import com.parkit.parkingsystem.constants.ParkingType;
+import com.parkit.parkingsystem.dao.ParkingSpotDAO;
+import com.parkit.parkingsystem.dao.TicketDAO;
+import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
+import com.parkit.parkingsystem.integration.service.DataBasePrepareService;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
 import com.parkit.parkingsystem.service.FareCalculatorService;
+import com.parkit.parkingsystem.service.ParkingService;
+import com.parkit.parkingsystem.util.InputReaderUtil;
+
+import org.apache.commons.math3.util.Precision;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
 public class FareCalculatorServiceTest {
 
     private static FareCalculatorService fareCalculatorService;
-    private Ticket ticket;
-
+    private Ticket ticket; 
+    private static DataBaseTestConfig dataBaseTestConfig = new DataBaseTestConfig();
+    private static ParkingSpotDAO parkingSpotDAO;
+    private static TicketDAO ticketDAO;
+    
+    
     @BeforeAll
     private static void setUp() {
         fareCalculatorService = new FareCalculatorService();
+        parkingSpotDAO = new ParkingSpotDAO();
+        parkingSpotDAO.dataBaseConfig = dataBaseTestConfig;
+        ticketDAO = new TicketDAO();
+        ticketDAO.dataBaseConfig = dataBaseTestConfig;
     }
 
     @BeforeEach
     private void setUpPerTest() {
-        ticket = new Ticket();
+        ticket = new Ticket();     
     }
 
     @Test
@@ -151,5 +169,43 @@ public class FareCalculatorServiceTest {
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);
         assertEquals( 0 , ticket.getPrice());
+    }
+    
+    @Test
+    public void calculateFareCarWithRecurringUser(){
+    	FareCalculatorService.dataBaseName = "test";
+    	Date inTime = new Date();
+    	Ticket ticket1 = new Ticket();
+    	Ticket ticket2 = new Ticket();
+    	ParkingSpot parkingSpot1 = new ParkingSpot(1, ParkingType.CAR, true);
+    	ParkingSpot parkingSpot2 = new ParkingSpot(2, ParkingType.CAR, true);
+    	
+    	//we register 2 tickets of the same user "ABCDEFG" in order to trigger discount
+    	ticket1.setParkingSpot(parkingSpot1);
+        ticket1.setVehicleRegNumber("ABCDEFG");
+        ticket1.setPrice(0);
+        ticket1.setInTime(inTime);
+        ticket1.setOutTime(inTime);
+        
+        ticket2.setParkingSpot(parkingSpot2);
+        ticket2.setVehicleRegNumber("ABCDEFG");
+        ticket2.setPrice(0);
+        ticket2.setInTime(inTime);
+        ticket2.setOutTime(inTime);
+        
+        ticketDAO.saveTicket(ticket1);
+        ticketDAO.saveTicket(ticket2);
+        
+    	
+        inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.CAR,false);
+        
+        ticket.setVehicleRegNumber("ABCDEFG"); 
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+        fareCalculatorService.calculateFare(ticket);
+        assertEquals(ticket.getPrice(), Precision.round((Fare.CAR_RATE_PER_HOUR * Fare.RECURRING_USER_DISCOUNT), 2));
     }
 }
