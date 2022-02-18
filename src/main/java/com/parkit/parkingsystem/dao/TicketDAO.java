@@ -5,6 +5,8 @@ import com.parkit.parkingsystem.constants.DBConstants;
 import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
+import com.parkit.parkingsystem.service.FareCalculatorService;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,8 +47,9 @@ public class TicketDAO {
     	  Connection con = null;
           Ticket ticket = null;
           try {
-              con = dataBaseConfig.getConnection();
-              PreparedStatement ps = con.prepareStatement(DBConstants.Recuring_User);
+        	  if (FareCalculatorService.dataBaseName == "prod") con = dataBaseConfig.getConnection();
+        	  else con = dataBaseConfig.getConnectionTest();
+              PreparedStatement ps = con.prepareStatement(DBConstants.RECURING_USER);
               //ID, PARKING_NUMBER, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME)
               ps.setString(1,vehicleRegNumber);
               ResultSet rs = ps.executeQuery();

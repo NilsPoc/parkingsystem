@@ -1,8 +1,7 @@
 package com.parkit.parkingsystem;
 
+import com.parkit.parkingsystem.service.FareCalculatorService;
 import com.parkit.parkingsystem.service.InteractiveShell;
-
-import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,7 +9,8 @@ import org.apache.logging.log4j.Logger;
 public class App {
     private static final Logger logger = LogManager.getLogger("App");
     public static void main(String args[]){
+    	FareCalculatorService.dataBaseName = "prod";
         logger.info("Initializing Parking System");
-        InteractiveShell.loadInterface();   
+        InteractiveShell.loadInterface(); 
     }
 }
