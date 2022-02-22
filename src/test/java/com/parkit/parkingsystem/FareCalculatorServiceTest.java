@@ -1,5 +1,6 @@
 package com.parkit.parkingsystem;
 
+import com.parkit.parkingsystem.constants.DBConstants;
 import com.parkit.parkingsystem.constants.Fare;
 import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.dao.ParkingSpotDAO;
@@ -31,7 +32,6 @@ public class FareCalculatorServiceTest {
     private static ParkingSpotDAO parkingSpotDAO;
     private static TicketDAO ticketDAO;
     
-    
     @BeforeAll
     private static void setUp() {
         fareCalculatorService = new FareCalculatorService();
@@ -39,6 +39,7 @@ public class FareCalculatorServiceTest {
         parkingSpotDAO.dataBaseConfig = dataBaseTestConfig;
         ticketDAO = new TicketDAO();
         ticketDAO.dataBaseConfig = dataBaseTestConfig;
+        DBConstants.dataBaseName = "test";
     }
 
     @BeforeEach
@@ -171,9 +172,9 @@ public class FareCalculatorServiceTest {
         assertEquals( 0 , ticket.getPrice());
     }
     
+    
     @Test
-    public void calculateFareCarWithRecurringUser(){
-    	FareCalculatorService.dataBaseName = "test";
+    public void calculateFareCarWithRecurringUser(){	  	
     	Date inTime = new Date();
     	Ticket ticket1 = new Ticket();
     	Ticket ticket2 = new Ticket();
