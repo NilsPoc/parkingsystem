@@ -9,11 +9,9 @@ import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.model.Ticket;
 
 public class FareCalculatorService {
-
-	public static String dataBaseName = "prod";
 	
-    public void calculateFare(Ticket ticket){
-        if( (ticket.getOutTime() == null) || (ticket.getOutTime().before(ticket.getInTime())) ){
+    public void calculateFare(Ticket ticket) {
+        if( (ticket.getOutTime() == null) || (ticket.getOutTime().before(ticket.getInTime())) ) {
             throw new IllegalArgumentException("Out time provided is incorrect:"+ticket.getOutTime().toString());
         }
         
@@ -22,7 +20,7 @@ public class FareCalculatorService {
          
         // We convert duration from milliseconds to minutes and then to hours (rounded with 2 decimals)
         double durationMin = (double) TimeUnit.MILLISECONDS.toMinutes(outHourInMillis - inHourInMillis);
-        double durationHour = Precision.round((durationMin/60), 2);
+        double durationHour = Precision.round((durationMin / 60), 2);
              
         TicketDAO ticketDAO = new TicketDAO();
         int visit = ticketDAO.getRecurrence(ticket.getVehicleRegNumber());
@@ -43,11 +41,12 @@ public class FareCalculatorService {
         	
         // Apply discount to recurring user (more than 1 visit) 
         if (visit >1) {
-        double discountedPrice = Precision.round((ticket.getPrice()*Fare.RECURRING_USER_DISCOUNT), 2);
+        double discountedPrice = Precision.round((ticket.getPrice() * Fare.RECURRING_USER_DISCOUNT), 2);
         ticket.setPrice(discountedPrice);
         }
         	
         }
+      
         //Free parking for 30 minutes or less users
         else ticket.setPrice(0); 
     }
